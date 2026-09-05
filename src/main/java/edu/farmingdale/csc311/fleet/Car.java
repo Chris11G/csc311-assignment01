@@ -26,39 +26,85 @@ public class Car extends Vehicle {
      *    "Car". Both numbers print with one decimal.
      * ------------------------------------------------------------------ */
 
+    // Stores the number of doors this car has.
+    private int doors;
+
     public Car(String vin, String make, String model, int year, String color,
                int wheels, double engineSize, FuelType fuelType, double fuelCapacity, int doors) {
 
+        // Calls the Vehicle constructor to initialize all inherited fields.
+        // This must remain the first statement in the constructor.
         super(vin, make, model, year, color, wheels, engineSize, fuelType, fuelCapacity);
 
-        // TODO-06 step 2: check and store doors here.
+        // Uses the setter so the door validation is only written once.
+        setDoors(doors);
     }
 
+    /**
+     * Returns the number of doors on this car.
+     */
     public int getDoors() {
-        throw new UnsupportedOperationException("TODO-06");
+        return doors;
     }
 
+    /**
+     * Changes the number of doors.
+     * A car can only have 2, 3, 4, or 5 doors.
+     */
     public void setDoors(int doors) {
-        throw new UnsupportedOperationException("TODO-06");
+
+        // Reject any door count outside the allowed range.
+        if (doors < 2 || doors > 5) {
+            throw new IllegalArgumentException(
+                    "doors has invalid value: [" + doors + "]");
+        }
+
+        // Store the valid door count.
+        this.doors = doors;
     }
 
+    /**
+     * Returns the type/category of this vehicle.
+     */
     @Override
     public String category() {
-        throw new UnsupportedOperationException("TODO-06");
+        return "Car";
     }
 
+    /**
+     * Calculates how many miles the car can travel on a full tank
+     * or full battery.
+     */
     @Override
     public double rangeInMiles() {
-        throw new UnsupportedOperationException("TODO-06");
+
+        // Range = fuel capacity multiplied by the fuel's miles per unit.
+        return getFuelCapacity() * getFuelType().getMilesPerUnit();
     }
 
+    /**
+     * Returns the horn sound used by a Car.
+     */
     @Override
     public String hornSound() {
-        throw new UnsupportedOperationException("TODO-06");
+        return "Beep beep!";
     }
 
+    /**
+     * Returns the Vehicle information along with the car-specific
+     * door count and driving range.
+     */
     @Override
     public String toString() {
-        throw new UnsupportedOperationException("TODO-06");
+
+        // Reuse Vehicle's toString() instead of repeating its format.
+        // The range is displayed with one decimal place.
+        return String.format(
+                "%s -> %s, doors=%d, range=%.1f mi",
+                category(),
+                super.toString(),
+                doors,
+                rangeInMiles()
+        );
     }
 }
