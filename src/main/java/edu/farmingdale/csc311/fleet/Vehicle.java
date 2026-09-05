@@ -44,9 +44,74 @@ public abstract class Vehicle implements Honkable {
      * a private static helper and call it three times.
      * ------------------------------------------------------------------ */
 
+    private final String vin;
+    private final String make;
+    private final String model;
+    private int year;
+    private String color;
+    private int wheels;
+    private final double engineSize;
+    private final FuelType fuelType;
+    private double fuelCapacity;
+
     protected Vehicle(String vin, String make, String model, int year, String color,
                       int wheels, double engineSize, FuelType fuelType, double fuelCapacity) {
-        throw new UnsupportedOperationException("TODO-02");
+
+        if (vin == null || vin.trim().length() != 17) {
+            throw new IllegalArgumentException("vin has invalid value: [" + vin + "]");
+        }
+
+        String checkedMake = checkText("make", make);
+        String checkedModel = checkText("model", model);
+        String checkedColor = checkText("color", color);
+
+        if (year < 1900 || year > 2100) {
+            throw new IllegalArgumentException("year has invalid value: [" + year + "]");
+        }
+
+        if (wheels < 2 || wheels > 18) {
+            throw new IllegalArgumentException("wheels has invalid value: [" + wheels + "]");
+        }
+
+        if (fuelType == null) {
+            throw new IllegalArgumentException("fuelType has invalid value: [" + fuelType + "]");
+        }
+
+        if (fuelType.hasEngine()) {
+            if (!(engineSize > 0.0 && engineSize <= 8.5)) {
+                throw new IllegalArgumentException(
+                        "engineSize has invalid value: [" + engineSize + "]");
+            }
+        } else {
+            if (engineSize != 0.0) {
+                throw new IllegalArgumentException(
+                        "engineSize has invalid value: [" + engineSize + "]");
+            }
+        }
+
+        if (!(fuelCapacity > 0.0)) {
+            throw new IllegalArgumentException(
+                    "fuelCapacity has invalid value: [" + fuelCapacity + "]");
+        }
+
+        this.vin = vin.trim().toUpperCase();
+        this.make = checkedMake;
+        this.model = checkedModel;
+        this.year = year;
+        this.color = checkedColor;
+        this.wheels = wheels;
+        this.engineSize = engineSize;
+        this.fuelType = fuelType;
+        this.fuelCapacity = fuelCapacity;
+    }
+
+    private static String checkText(String fieldName, String value) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(
+                    fieldName + " has invalid value: [" + value + "]");
+        }
+
+        return value.trim();
     }
 
     /* ------------------------------------------------------------------
