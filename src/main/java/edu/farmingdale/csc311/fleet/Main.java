@@ -52,6 +52,267 @@ public class Main {
      * ------------------------------------------------------------------ */
 
     public static void main(String[] args) {
-        System.out.println("TODO-10: build the fleet demo. See the handout for the expected output.");
+
+        // Build the fleet and add all five required vehicles.
+        Fleet fleet = buildFleet();
+
+        // Print the program title using the fleet's name.
+        System.out.println("=== " + fleet.getName() + " ===");
+        System.out.println();
+
+        // Print each required section of the program.
+        printInventory(fleet);
+        printSoundCheck(fleet);
+        printFleetReport(fleet);
+        printGuardRails(fleet);
+    }
+
+    /**
+     * Creates the Farmingdale Motor Pool and adds the five
+     * vehicles specified in the assignment.
+     */
+    private static Fleet buildFleet() {
+
+        // Create the fleet with the required name.
+        Fleet fleet = new Fleet("Farmingdale Motor Pool");
+
+        // Add the Honda Accord.
+        fleet.add(new Car(
+                "1HGCM82633A004352",
+                "Honda",
+                "Accord",
+                2023,
+                "Blue",
+                4,
+                2.0,
+                FuelType.GASOLINE,
+                15.8,
+                4
+        ));
+
+        // Add the Tesla Model 3.
+        fleet.add(new Car(
+                "5YJ3E1EA7PF123456",
+                "Tesla",
+                "Model 3",
+                2024,
+                "Red",
+                4,
+                0.0,
+                FuelType.ELECTRIC,
+                75.0,
+                4
+        ));
+
+        // Add the Toyota Prius.
+        fleet.add(new Car(
+                "JTDKARFU2J3061234",
+                "Toyota",
+                "Prius",
+                2020,
+                "Silver",
+                4,
+                1.8,
+                FuelType.HYBRID,
+                11.3,
+                5
+        ));
+
+        // Add the Ford F-350.
+        fleet.add(new Truck(
+                "1FT8W3BT5MEC12345",
+                "Ford",
+                "F-350",
+                2021,
+                "White",
+                6,
+                6.7,
+                FuelType.DIESEL,
+                40.0,
+                3500.0
+        ));
+
+        // Add the Ram 2500.
+        fleet.add(new Truck(
+                "3C6UR5DL9JG123456",
+                "Ram",
+                "2500",
+                2019,
+                "Black",
+                4,
+                6.4,
+                FuelType.GASOLINE,
+                31.0,
+                1800.0
+        ));
+
+        return fleet;
+    }
+
+    /**
+     * Prints all vehicles sorted from oldest to newest.
+     * Vehicles with the same year are sorted by make.
+     */
+    private static void printInventory(Fleet fleet) {
+
+        System.out.println(
+                "-- Inventory (" + fleet.size()
+                        + " vehicles, sorted by year then make) --"
+        );
+
+        // Vehicle is used as the loop variable so both Cars and Trucks
+        // can be handled by the exact same loop.
+        for (Vehicle vehicle : fleet.sortedByYear()) {
+            System.out.println(vehicle);
+        }
+
+        System.out.println();
+    }
+
+    /**
+     * Demonstrates polymorphism by honking every vehicle.
+     */
+    private static void printSoundCheck(Fleet fleet) {
+
+        System.out.println("-- Sound check --");
+
+        // Each object decides how honk() behaves.
+        // Cars honk once while Trucks override honk() and honk twice.
+        for (Honkable vehicle : fleet.sortedByYear()) {
+            vehicle.honk();
+        }
+
+        System.out.println();
+        System.out.println("-- Impatient Accord --");
+
+        // Find the Accord by VIN.
+        Vehicle accord = fleet.findByVin("1HGCM82633A004352");
+
+        // Make the Accord honk exactly three times.
+        accord.honk(3);
+
+        System.out.println();
+    }
+
+    /**
+     * Prints statistics about the current fleet.
+     */
+    private static void printFleetReport(Fleet fleet) {
+
+        System.out.println("-- Fleet report --");
+
+        // Print the total number of vehicles.
+        System.out.printf(
+                "%-20s: %d%n",
+                "Vehicles",
+                fleet.size()
+        );
+
+        // Print the average engine size.
+        // Electric vehicles are excluded by averageEngineSize().
+        System.out.printf(
+                "%-20s: %.1f L%n",
+                "Average engine size",
+                fleet.averageEngineSize()
+        );
+
+        // Find the vehicle with the greatest calculated range.
+        Vehicle longest = fleet.longestRange();
+
+        // Print the longest-range vehicle using the required format.
+        System.out.printf(
+                "%-20s: %d %s %s (%.1f mi)%n",
+                "Longest range",
+                longest.getYear(),
+                longest.getMake(),
+                longest.getModel(),
+                longest.rangeInMiles()
+        );
+
+        System.out.println("Fuel mix:");
+
+        // Loop through every FuelType instead of writing four separate lines.
+        for (FuelType fuel : FuelType.values()) {
+            System.out.printf(
+                    "  %-9s: %d%n",
+                    fuel.getLabel(),
+                    fleet.countWithFuelType(fuel)
+            );
+        }
+
+        System.out.println();
+    }
+
+    /**
+     * Demonstrates duplicate protection, removal, and exception handling.
+     */
+    private static void printGuardRails(Fleet fleet) {
+
+        System.out.println("-- Guard rails --");
+
+        // Find the Accord that is already stored in the fleet.
+        Vehicle accord = fleet.findByVin("1HGCM82633A004352");
+
+        // Trying to add the Accord again should fail.
+        // add() returns false, so ! converts that into true for
+        // the "Duplicate VIN rejected" output shown in the handout.
+        boolean duplicateRejected = !fleet.add(accord);
+
+        System.out.printf(
+                "%-23s: %s%n",
+                "Duplicate VIN rejected",
+                duplicateRejected
+        );
+
+        // Remove the Prius by its VIN.
+        boolean removedPrius =
+                fleet.removeByVin("JTDKARFU2J3061234");
+
+        System.out.printf(
+                "%-23s: %s%n",
+                "Removed the Prius",
+                removedPrius
+        );
+
+        // The fleet should now contain four vehicles.
+        System.out.printf(
+                "%-23s: %s%n",
+                "Fleet size now",
+                fleet.size()
+        );
+
+        // Test an invalid electric car.
+        // Electric vehicles must have an engine size of exactly 0.0.
+        try {
+            new Car(
+                    "1HGCM82633A004352",
+                    "Test",
+                    "Electric",
+                    2024,
+                    "Blue",
+                    4,
+                    2.0,
+                    FuelType.ELECTRIC,
+                    75.0,
+                    4
+            );
+        } catch (IllegalArgumentException e) {
+            System.out.println("Caught: " + e.getMessage());
+        }
+
+        // Test looking up a fuel type that does not exist.
+        try {
+            FuelType.fromLabel("Steam");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Caught: " + e.getMessage());
+        }
+
+        // Test an invalid honk count.
+        // honk(int) requires at least one honk.
+        try {
+            accord.honk(0);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Caught: " + e.getMessage());
+        }
     }
 }
