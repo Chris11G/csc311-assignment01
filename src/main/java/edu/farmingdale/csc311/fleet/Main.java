@@ -3,7 +3,7 @@ package edu.farmingdale.csc311.fleet;
 /**
  * Driver. This is the only class that prints a report.
  *
- * @author YOUR NAME HERE
+ * @author Christopher Gonzalez
  */
 public class Main {
 
