@@ -247,19 +247,124 @@ public class Fleet {
      *        the type: rangeInMiles() already knows which formula to run.
      * ------------------------------------------------------------------ */
 
+    /**
+     * Returns a new array sorted by year from oldest to newest.
+     * If two vehicles have the same year, their makes are sorted
+     * alphabetically while ignoring capitalization.
+     */
     public Vehicle[] sortedByYear() {
-        throw new UnsupportedOperationException("TODO-09");
+
+        // Start with a copy so the fleet's internal array is never reordered.
+        Vehicle[] sorted = toArray();
+
+        // Use selection sort as required instead of Arrays.sort().
+        for (int i = 0; i < sorted.length - 1; i++) {
+
+            // Assume the current position holds the smallest item.
+            int smallestIndex = i;
+
+            // Search the remaining array for an earlier vehicle.
+            for (int j = i + 1; j < sorted.length; j++) {
+
+                // A vehicle comes first if its year is smaller.
+                boolean earlierYear =
+                        sorted[j].getYear() < sorted[smallestIndex].getYear();
+
+                // If the years match, compare the makes alphabetically.
+                boolean sameYearEarlierMake =
+                        sorted[j].getYear() == sorted[smallestIndex].getYear()
+                                && sorted[j].getMake().compareToIgnoreCase(
+                                sorted[smallestIndex].getMake()) < 0;
+
+                if (earlierYear || sameYearEarlierMake) {
+                    smallestIndex = j;
+                }
+            }
+
+            // Swap the selected vehicle into the current position.
+            Vehicle temp = sorted[i];
+            sorted[i] = sorted[smallestIndex];
+            sorted[smallestIndex] = temp;
+        }
+
+        // Return the sorted copy, leaving the internal array unchanged.
+        return sorted;
     }
 
+    /**
+     * Returns the number of vehicles that use the given fuel type.
+     */
     public int countWithFuelType(FuelType fuel) {
-        throw new UnsupportedOperationException("TODO-09");
+
+        // Tracks how many vehicles match the requested fuel type.
+        int fuelCount = 0;
+
+        // Check each vehicle currently stored in the fleet.
+        for (int i = 0; i < count; i++) {
+
+            // Enum values can be compared directly using ==.
+            if (vehicles[i].getFuelType() == fuel) {
+                fuelCount++;
+            }
+        }
+
+        return fuelCount;
     }
 
+    /**
+     * Returns the average engine size of vehicles that actually have engines.
+     * Electric vehicles are excluded from the calculation.
+     */
     public double averageEngineSize() {
-        throw new UnsupportedOperationException("TODO-09");
+
+        // Stores the total engine size of qualifying vehicles.
+        double totalEngineSize = 0.0;
+
+        // Tracks how many vehicles actually have an engine.
+        int engineCount = 0;
+
+        for (int i = 0; i < count; i++) {
+
+            // Only include vehicles whose fuel type reports having an engine.
+            if (vehicles[i].getFuelType().hasEngine()) {
+                totalEngineSize += vehicles[i].getEngineSize();
+                engineCount++;
+            }
+        }
+
+        // Avoid dividing by zero when there are no engine-powered vehicles.
+        if (engineCount == 0) {
+            return 0.0;
+        }
+
+        // Divide using a double total so the result keeps decimal precision.
+        return totalEngineSize / engineCount;
     }
 
+    /**
+     * Returns the vehicle with the longest driving range.
+     * Returns null if the fleet is empty.
+     */
     public Vehicle longestRange() {
-        throw new UnsupportedOperationException("TODO-09");
+
+        // An empty fleet has no vehicle with a longest range.
+        if (count == 0) {
+            return null;
+        }
+
+        // Start with the first vehicle as the current longest-range vehicle.
+        Vehicle longest = vehicles[0];
+
+        // Start at index 1 because index 0 is already our current best.
+        for (int i = 1; i < count; i++) {
+
+            // Only replace the current winner when the new range is larger.
+            // Using > instead of >= keeps the vehicle added first on a tie.
+            if (vehicles[i].rangeInMiles() > longest.rangeInMiles()) {
+                longest = vehicles[i];
+            }
+        }
+
+        return longest;
     }
 }
