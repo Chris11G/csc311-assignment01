@@ -30,44 +30,100 @@ public class Truck extends Vehicle {
      *    Same rules as Car: super.toString(), category(), one decimal.
      * ------------------------------------------------------------------ */
 
+    // Stores the truck's payload capacity in kilograms.
+    private double payloadKg;
+
     public Truck(String vin, String make, String model, int year, String color,
                  int wheels, double engineSize, FuelType fuelType, double fuelCapacity, double payloadKg) {
 
+        // Calls the Vehicle constructor to initialize all inherited fields.
+        // This must remain the first statement in the constructor.
         super(vin, make, model, year, color, wheels, engineSize, fuelType, fuelCapacity);
 
-        // TODO-07 step 2: check and store payloadKg here.
+        // Use the setter so the payload validation only has to be written once.
+        setPayloadKg(payloadKg);
     }
 
+    /**
+     * Returns the truck's payload capacity in kilograms.
+     */
     public double getPayloadKg() {
-        throw new UnsupportedOperationException("TODO-07");
+        return payloadKg;
     }
 
+    /**
+     * Changes the truck's payload capacity.
+     * The payload must be above 0.0 kg and no more than 20000.0 kg.
+     */
     public void setPayloadKg(double payloadKg) {
-        throw new UnsupportedOperationException("TODO-07");
+
+        // Reject payload values outside the allowed range.
+        if (!(payloadKg > 0.0 && payloadKg <= 20000.0)) {
+            throw new IllegalArgumentException(
+                    "payloadKg has invalid value: [" + payloadKg + "]");
+        }
+
+        // Store the valid payload value.
+        this.payloadKg = payloadKg;
     }
 
+    /**
+     * Returns the type/category of this vehicle.
+     */
     @Override
     public String category() {
-        throw new UnsupportedOperationException("TODO-07");
+        return "Truck";
     }
 
+    /**
+     * Returns the horn sound used by a Truck.
+     */
     @Override
     public String hornSound() {
-        throw new UnsupportedOperationException("TODO-07");
+        return "HOOOONK!";
     }
 
+    /**
+     * A truck honks twice when honk() is called once.
+     */
     @Override
     public void honk() {
-        throw new UnsupportedOperationException("TODO-07");
+
+        // Reuse Vehicle's honk(int) method instead of repeating its printing code.
+        honk(2);
     }
 
+    /**
+     * Calculates the truck's driving range.
+     * The range decreases as the payload rating increases.
+     */
     @Override
     public double rangeInMiles() {
-        throw new UnsupportedOperationException("TODO-07");
+
+        // Reduce the range by up to 35% based on the truck's payload.
+        double loadFactor = 1.0 - Math.min(0.35, payloadKg / 20000.0);
+
+        // Range = capacity * miles per unit * payload load factor.
+        return getFuelCapacity()
+                * getFuelType().getMilesPerUnit()
+                * loadFactor;
     }
 
+    /**
+     * Returns the Vehicle information along with the truck-specific
+     * payload capacity and driving range.
+     */
     @Override
     public String toString() {
-        throw new UnsupportedOperationException("TODO-07");
+
+        // Reuse Vehicle's toString() and add the Truck-specific information.
+        // Payload and range are both displayed with one decimal place.
+        return String.format(
+                "%s -> %s, payload=%.1f kg, range=%.1f mi",
+                category(),
+                super.toString(),
+                payloadKg,
+                rangeInMiles()
+        );
     }
 }
