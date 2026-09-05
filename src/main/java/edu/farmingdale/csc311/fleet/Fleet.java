@@ -50,36 +50,172 @@ public class Fleet {
      *        overwrite your slots, so copy it.
      * ------------------------------------------------------------------ */
 
+    // Stores the fleet's name. It cannot be changed after construction.
+    private final String name;
+
+    // Stores up to MAX_VEHICLES vehicles in a plain array.
+    private final Vehicle[] vehicles;
+
+    // Tracks how many positions in the array are currently being used.
+    private int count;
+
+    /**
+     * Creates a fleet with the given name.
+     */
     public Fleet(String name) {
-        throw new UnsupportedOperationException("TODO-08");
+
+        // The fleet name cannot be null or blank.
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException(
+                    "name has invalid value: [" + name + "]");
+        }
+
+        // Store the trimmed fleet name.
+        this.name = name.trim();
+
+        // Create the fixed-size vehicle array.
+        this.vehicles = new Vehicle[MAX_VEHICLES];
+
+        // A new fleet starts with no vehicles.
+        this.count = 0;
     }
 
+    /**
+     * Returns the fleet's name.
+     */
     public String getName() {
-        throw new UnsupportedOperationException("TODO-08");
+        return name;
     }
 
+    /**
+     * Returns true if an equal vehicle is already stored in the fleet.
+     */
     public boolean contains(Vehicle vehicle) {
-        throw new UnsupportedOperationException("TODO-08");
+
+        // Only check the slots that are currently being used.
+        for (int i = 0; i < count; i++) {
+
+            // Use Vehicle.equals() so vehicles are compared by VIN.
+            if (vehicles[i].equals(vehicle)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
+    /**
+     * Adds a vehicle to the fleet if it is not already present
+     * and there is room in the array.
+     */
     public boolean add(Vehicle vehicle) {
-        throw new UnsupportedOperationException("TODO-08");
+
+        // Null vehicles are not allowed.
+        if (vehicle == null) {
+            throw new IllegalArgumentException(
+                    "vehicle has invalid value: [" + vehicle + "]");
+        }
+
+        // Do not add a duplicate vehicle.
+        if (contains(vehicle)) {
+            return false;
+        }
+
+        // Do not add anything if the array is already full.
+        if (count >= MAX_VEHICLES) {
+            return false;
+        }
+
+        // Store the new vehicle in the next unused position.
+        vehicles[count] = vehicle;
+
+        // Increase the number of used slots.
+        count++;
+
+        return true;
     }
 
+    /**
+     * Removes the vehicle whose VIN matches the given VIN.
+     */
     public boolean removeByVin(String vin) {
-        throw new UnsupportedOperationException("TODO-08");
+
+        // Null or blank VIN values cannot match anything.
+        if (vin == null || vin.isBlank()) {
+            return false;
+        }
+
+        // Search only the used portion of the array.
+        for (int i = 0; i < count; i++) {
+
+            // Compare VINs without considering upper/lower case.
+            if (vehicles[i].getVin().equalsIgnoreCase(vin.trim())) {
+
+                // Shift every later vehicle one position to the left.
+                for (int j = i; j < count - 1; j++) {
+                    vehicles[j] = vehicles[j + 1];
+                }
+
+                // Clear the old final used slot.
+                vehicles[count - 1] = null;
+
+                // One fewer vehicle is now stored.
+                count--;
+
+                return true;
+            }
+        }
+
+        // No matching VIN was found.
+        return false;
     }
 
+    /**
+     * Finds and returns a vehicle by VIN.
+     * Returns null if there is no match.
+     */
     public Vehicle findByVin(String vin) {
-        throw new UnsupportedOperationException("TODO-08");
+
+        // Null or blank VIN values cannot match anything.
+        if (vin == null || vin.isBlank()) {
+            return null;
+        }
+
+        // Search only the vehicles currently stored.
+        for (int i = 0; i < count; i++) {
+
+            // Compare VINs while ignoring capitalization.
+            if (vehicles[i].getVin().equalsIgnoreCase(vin.trim())) {
+                return vehicles[i];
+            }
+        }
+
+        // No matching vehicle was found.
+        return null;
     }
 
+    /**
+     * Returns the number of vehicles currently stored.
+     */
     public int size() {
-        throw new UnsupportedOperationException("TODO-08");
+        return count;
     }
 
+    /**
+     * Returns a new array containing only the vehicles currently stored.
+     */
     public Vehicle[] toArray() {
-        throw new UnsupportedOperationException("TODO-08");
+
+        // Create a new array with exactly enough space for the used vehicles.
+        Vehicle[] copy = new Vehicle[count];
+
+        // Copy the vehicles in their original insertion order.
+        for (int i = 0; i < count; i++) {
+            copy[i] = vehicles[i];
+        }
+
+        // Return the copy so callers cannot modify the internal array.
+        return copy;
     }
 
     /* ------------------------------------------------------------------
